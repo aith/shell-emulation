@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 # $Id: Makefile,v 1.39 2020-10-22 15:53:56-07 - - $
 
 MKFILE      = Makefile
 DEPFILE     = ${MKFILE}.dep
 NOINCL      = check lint ci clean spotless 
+=======
+# $Id: Makefile,v 1.34 2019-10-16 15:17:26-07 - - $
+
+MKFILE      = Makefile
+DEPFILE     = ${MKFILE}.dep
+NOINCL      = ci clean spotless
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 NEEDINCL    = ${filter ${NOINCL}, ${MAKECMDGOALS}}
 GMAKE       = ${MAKE} --no-print-directory
 GPPWARN     = -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast
@@ -27,6 +35,7 @@ ${EXECBIN} : ${OBJECTS}
 	${COMPILECPP} -o $@ ${OBJECTS}
 
 %.o : %.cpp
+<<<<<<< HEAD
 	${COMPILECPP} -c $<
 
 check : ${ALLSOURCES}
@@ -37,6 +46,15 @@ lint : ${CPPSOURCE}
 
 ci : ${ALLSOURCES}
 	- ${UTILBIN}/cid -is ${ALLSOURCES}
+=======
+	- ${UTILBIN}/cpplint.py.perl $<
+	- ${UTILBIN}/checksource $<
+	${COMPILECPP} -c $<
+
+ci : ${ALLSOURCES}
+	- ${UTILBIN}/checksource ${ALLSOURCES}
+	${UTILBIN}/cid -is ${ALLSOURCES}
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 
 lis : ${ALLSOURCES}
 	${UTILBIN}/mkpspdf ${LISTING} ${ALLSOURCES} ${DEPFILE}

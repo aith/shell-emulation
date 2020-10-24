@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // $Id: file_sys.cpp,v 1.8 2020-10-22 14:37:26-07 - - $
+=======
+// $Id: file_sys.cpp,v 1.7 2019-07-09 14:05:44-07 - - $
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 
 #include <iostream>
 #include <stdexcept>
@@ -50,7 +54,11 @@ inode::inode(file_type type): inode_nr (next_inode_nr++) {
    DEBUGF ('i', "inode " << inode_nr << ", type = " << type);
 }
 
+<<<<<<< HEAD
 size_t inode::get_inode_nr() const {
+=======
+int inode::get_inode_nr() const {
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
    DEBUGF ('i', "inode = " << inode_nr);
    return inode_nr;
 }
@@ -81,44 +89,66 @@ inode_ptr base_file::mkfile (const string&) {
 }
 
 
+<<<<<<< HEAD
 // TODO
  // Iterate through the vector, find all the lengths of the strings in the vector, and assign it to size... rn its always 0
 size_t plain_file::size() const { 
+=======
+size_t plain_file::size() const {
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
    size_t size {0};
    DEBUGF ('i', "size = " << size);
    return size;
 }
 
+<<<<<<< HEAD
 // This is done
+=======
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 const wordvec& plain_file::readfile() const {
    DEBUGF ('i', data);
    return data;
 }
 
+<<<<<<< HEAD
 // TODO
+=======
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 void plain_file::writefile (const wordvec& words) {
    DEBUGF ('i', words);
 }
 
+<<<<<<< HEAD
 // TODO num of entried in dir
+=======
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 size_t directory::size() const {
    size_t size {0};
    DEBUGF ('i', "size = " << size);
    return size;
 }
 
+<<<<<<< HEAD
 // TODO remove file
+=======
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 void directory::remove (const string& filename) {
    DEBUGF ('i', filename);
 }
 
+<<<<<<< HEAD
 // TODO
+=======
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 inode_ptr directory::mkdir (const string& dirname) {
    DEBUGF ('i', dirname);
    return nullptr;
 }
 
+<<<<<<< HEAD
 // TODO enters a new file in dir
+=======
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 inode_ptr directory::mkfile (const string& filename) {
    DEBUGF ('i', filename);
    return nullptr;

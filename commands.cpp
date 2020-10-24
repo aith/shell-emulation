@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // $Id: commands.cpp,v 1.19 2020-10-20 18:23:13-07 - - $
+=======
+// $Id: commands.cpp,v 1.18 2019-10-08 13:55:31-07 - - $
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 
 #include "commands.h"
 #include "debug.h"
@@ -15,7 +19,10 @@ command_hash cmd_hash {
    {"prompt", fn_prompt},
    {"pwd"   , fn_pwd   },
    {"rm"    , fn_rm    },
+<<<<<<< HEAD
    {"rmr"   , fn_rmr   },
+=======
+>>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 };
 
 command_fn find_command_fn (const string& cmd) {
