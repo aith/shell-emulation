@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 // $Id: commands.cpp,v 1.19 2020-10-20 18:23:13-07 - - $
-=======
-// $Id: commands.cpp,v 1.18 2019-10-08 13:55:31-07 - - $
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 
 #include "commands.h"
 #include "debug.h"
@@ -19,10 +15,7 @@ command_hash cmd_hash {
    {"prompt", fn_prompt},
    {"pwd"   , fn_pwd   },
    {"rm"    , fn_rm    },
-<<<<<<< HEAD
    {"rmr"   , fn_rmr   },
-=======
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 };
 
 command_fn find_command_fn (const string& cmd) {
@@ -53,11 +46,16 @@ void fn_cat (inode_state& state, const wordvec& words){
 }
 
 void fn_cd (inode_state& state, const wordvec& words){
+   // TODO check for words
+   state.set_cwd(
+      state.get_cwd()->get_contents()->get_dirents()[words.at(1)]
+   );
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
 
 void fn_echo (inode_state& state, const wordvec& words){
+   // TODO is this done??
    DEBUGF ('c', state);
    DEBUGF ('c', words);
    cout << word_range (words.cbegin() + 1, words.cend()) << endl;
@@ -71,6 +69,10 @@ void fn_exit (inode_state& state, const wordvec& words){
 }
 
 void fn_ls (inode_state& state, const wordvec& words){
+   // for all files in dirent, cout them
+   // creating print_dirents so I can access them easier
+   // TODO parse
+   state.get_cwd()->get_contents()->print_dirents();
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
@@ -81,11 +83,25 @@ void fn_lsr (inode_state& state, const wordvec& words){
 }
 
 void fn_make (inode_state& state, const wordvec& words){
+   wordvec::const_iterator it = words.begin();
+   while (it != words.end())
+   {
+      // cat it to data
+      cout << *it << endl;
+      it++;
+   }
+   // state.getcwd()->get_contents()->writefile(words)
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
 
 void fn_mkdir (inode_state& state, const wordvec& words){
+   // is this right? the base file taht inode-ptr points to
+   // the pointers themselves dont have the get commands, 
+   // so you use get from what they point to
+   // TODO parse path
+   // TODO check duplicates and then err
+   state.get_cwd()->get_contents()->mkdir(words.at(1));
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
@@ -96,6 +112,7 @@ void fn_prompt (inode_state& state, const wordvec& words){
 }
 
 void fn_pwd (inode_state& state, const wordvec& words){
+   cout << state.get_cwd()->get_contents()->get_path() << endl;
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 // $Id: file_sys.cpp,v 1.8 2020-10-22 14:37:26-07 - - $
-=======
-// $Id: file_sys.cpp,v 1.7 2019-07-09 14:05:44-07 - - $
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 
 #include <iostream>
 #include <stdexcept>
@@ -29,7 +25,14 @@ ostream& operator<< (ostream& out, file_type type) {
    return out << hash[type];
 }
 
+// TODO
 inode_state::inode_state() {
+   // make_shared does allocate space for the object it points to bc of ctor
+   root = make_shared<inode>(file_type::DIRECTORY_TYPE);  // public ctor
+   cwd = root;
+   root->contents->get_dirents().insert(pair<string, inode_ptr>(".",root));
+   root->contents->get_dirents().insert(pair<string, inode_ptr>("..",root));
+   root->contents->set_path("/");
    DEBUGF ('i', "root = " << root << ", cwd = " << cwd
           << ", prompt = \"" << prompt() << "\"");
 }
@@ -42,23 +45,21 @@ ostream& operator<< (ostream& out, const inode_state& state) {
    return out;
 }
 
+// Note how the param is an enum
 inode::inode(file_type type): inode_nr (next_inode_nr++) {
    switch (type) {
+      // TIL you can set a pointer to a parent from the pointer of a subclass
       case file_type::PLAIN_TYPE:
-           contents = make_shared<plain_file>();
+           contents = make_shared<plain_file>(); 
            break;
       case file_type::DIRECTORY_TYPE:
-           contents = make_shared<directory>();
+           contents = make_shared<directory>(); //default ctor... an empty dir??
            break;
    }
    DEBUGF ('i', "inode " << inode_nr << ", type = " << type);
 }
 
-<<<<<<< HEAD
 size_t inode::get_inode_nr() const {
-=======
-int inode::get_inode_nr() const {
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
    DEBUGF ('i', "inode = " << inode_nr);
    return inode_nr;
 }
@@ -89,68 +90,65 @@ inode_ptr base_file::mkfile (const string&) {
 }
 
 
-<<<<<<< HEAD
 // TODO
  // Iterate through the vector, find all the lengths of the strings in the vector, and assign it to size... rn its always 0
 size_t plain_file::size() const { 
-=======
-size_t plain_file::size() const {
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
    size_t size {0};
    DEBUGF ('i', "size = " << size);
    return size;
 }
 
-<<<<<<< HEAD
 // This is done
-=======
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 const wordvec& plain_file::readfile() const {
    DEBUGF ('i', data);
    return data;
 }
 
-<<<<<<< HEAD
 // TODO
-=======
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 void plain_file::writefile (const wordvec& words) {
    DEBUGF ('i', words);
 }
 
-<<<<<<< HEAD
 // TODO num of entried in dir
-=======
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 size_t directory::size() const {
    size_t size {0};
    DEBUGF ('i', "size = " << size);
    return size;
 }
 
-<<<<<<< HEAD
 // TODO remove file
-=======
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 void directory::remove (const string& filename) {
    DEBUGF ('i', filename);
 }
 
-<<<<<<< HEAD
-// TODO
-=======
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
+// TODO. need to add . and .. here.
 inode_ptr directory::mkdir (const string& dirname) {
    DEBUGF ('i', dirname);
-   return nullptr;
+   inode_ptr dir = make_shared<inode>(file_type::DIRECTORY_TYPE);  // public ctor
+   string parent_path = this->get_path(); // the current instance of dir
+   string new_path = parent_path + dirname + "/";
+   dir->get_contents()->set_path(new_path);
+   this->dirents.insert(pair<string, inode_ptr>(dirname,dir));
+   dir->get_contents()->get_dirents().insert(pair<string, inode_ptr>(".",dir));
+   dir->get_contents()->get_dirents().insert(pair<string, inode_ptr>("..",this->get_dirents().at(".")));
+   return dir;
 }
 
-<<<<<<< HEAD
 // TODO enters a new file in dir
-=======
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 inode_ptr directory::mkfile (const string& filename) {
    DEBUGF ('i', filename);
    return nullptr;
 }
 
+void directory::print_dirents() const {
+   map<string, inode_ptr>::const_iterator it = this->dirents.begin();
+   while (it != this->dirents.end())
+   {
+      // TODO size
+      // TODO spacing
+      cout << it->second->get_inode_nr() << " ";
+       cout << it->first << endl;
+       // Increment the Iterator to point to next entry
+       it++;
+   }
+}

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 // $Id: file_sys.h,v 1.8 2020-10-22 14:37:26-07 - - $
-=======
-// $Id: file_sys.h,v 1.7 2019-07-09 14:05:44-07 - - $
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
 
 #ifndef __INODE_H__
 #define __INODE_H__
@@ -38,20 +34,19 @@ class inode_state {
    friend class inode;
    friend ostream& operator<< (ostream& out, const inode_state&);
    private:
-      inode_ptr root {nullptr};
-      inode_ptr cwd {nullptr};
+      inode_ptr root {nullptr}; // TODO Setter TODO Getter... for every variable is this asg
+      inode_ptr cwd {nullptr};  // TODO Setter TODO Getter
       string prompt_ {"% "};
    public:
       inode_state (const inode_state&) = delete; // copy ctor
       inode_state& operator= (const inode_state&) = delete; // op=
-<<<<<<< HEAD
       inode_state();  // ctor
       const string& prompt() const;  // getter
       void prompt (const string&);   // setter
-=======
-      inode_state();
-      const string& prompt() const;
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
+
+      inode_ptr& get_cwd() { return cwd; }
+      void set_cwd(inode_ptr& new_cwd) { this->cwd = new_cwd; }
+      inode_ptr& get_root() { return root; }
 };
 
 // class inode -
@@ -74,12 +69,11 @@ class inode {
       size_t inode_nr;
       base_file_ptr contents;
    public:
-      inode (file_type);
-<<<<<<< HEAD
+      inode (file_type);  // declare ctor
       size_t get_inode_nr() const;
-=======
-      int get_inode_nr() const;
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
+      virtual base_file_ptr& get_contents() {
+         return contents;
+      };
 };
 
 
@@ -107,6 +101,16 @@ class base_file {
       virtual void remove (const string& filename);
       virtual inode_ptr mkdir (const string& dirname);
       virtual inode_ptr mkfile (const string& filename);
+
+      // Creates a base-case, that throws error if subclass doesn't implement
+      virtual map<string,inode_ptr>& get_dirents() {
+         throw file_error ("is a " + error_file_type()); };
+      virtual string& get_path() { 
+         throw file_error ("is a " + error_file_type()); };
+      virtual void set_path(const string&) { 
+         throw file_error ("is a " + error_file_type()); };
+      virtual void print_dirents() const { 
+         throw file_error ("is a " + error_file_type()); };
 };
 
 // class plain_file -
@@ -126,14 +130,9 @@ class plain_file: public base_file {
          return result;
       }
    public:
-<<<<<<< HEAD
-      virtual size_t size() const override
+      virtual size_t size() const override;
       // These are the only 2 things you can do to a plain_file
       virtual const wordvec& readfile() const override;         
-=======
-      virtual size_t size() const override;
-      virtual const wordvec& readfile() const override;
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
       virtual void writefile (const wordvec& newdata) override;
 };
 
@@ -155,28 +154,30 @@ class plain_file: public base_file {
 //    Create a new empty text file with the given name.  Error if
 //    a dirent with that name exists.
 
-<<<<<<< HEAD
 class directory: public base_file { // Just a map
    private:
       // Must be a map, not unordered_map, so printing is lexicographic
-      map<string,inode_ptr> dirents; // TODO default ctor, but this isn't good bc you want to insert
-                                     // . and ..
-=======
-class directory: public base_file {
-   private:
-      // Must be a map, not unordered_map, so printing is lexicographic
-      map<string,inode_ptr> dirents;
->>>>>>> 59385574f89ffdd8f27a50b960ba54642a84e3d9
+      map<string,inode_ptr> dirents; 
+                                     
       virtual const string& error_file_type() const override {
          static const string result = "directory";
          return result;
       }
+      string path; // now create a getter and sette
    public:
       virtual size_t size() const override;
       virtual void remove (const string& filename) override;
       virtual inode_ptr mkdir (const string& dirname) override;
       virtual inode_ptr mkfile (const string& filename) override;
+      // map.insert(pair) // make a setter func with this code
+      // TODO: Does this return the reference? How?
+      virtual map<string,inode_ptr>& get_dirents() override {
+         return dirents; }; // Pass by reference. Seehttps://www.tutorialspoint.com/cplusplus/returning_values_by_reference.htm
+      virtual string& get_path() override { return path; };
+      virtual void set_path(const string& filepath) override { this->path = filepath; };
+      virtual void print_dirents() const override;
 };
 
 #endif
+
 
