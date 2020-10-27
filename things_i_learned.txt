@@ -1,0 +1,4 @@
+Things I learned:
+- How to use virtual functions and proper inheritence
+- Remember that the functions that you want to polymorph
+ have the same qualifiers and parameters

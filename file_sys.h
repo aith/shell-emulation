@@ -111,6 +111,8 @@ class base_file {
          throw file_error ("is a " + error_file_type()); };
       virtual void print_dirents() const { 
          throw file_error ("is a " + error_file_type()); };
+      virtual string dir_tail() const { 
+         throw file_error ("is a " + error_file_type()); };
 };
 
 // class plain_file -
@@ -129,11 +131,16 @@ class plain_file: public base_file {
          static const string result = "plain file";
          return result;
       }
+      string path; // now create a getter and sette
    public:
       virtual size_t size() const override;
       // These are the only 2 things you can do to a plain_file
       virtual const wordvec& readfile() const override;         
       virtual void writefile (const wordvec& newdata) override;
+      virtual void set_path(const string& filepath) override { this->path = filepath; };
+      virtual string dir_tail() const override { return ""; };
+      virtual string& get_path() override { return path; };
+      
 };
 
 // class directory -
@@ -176,6 +183,7 @@ class directory: public base_file { // Just a map
       virtual string& get_path() override { return path; };
       virtual void set_path(const string& filepath) override { this->path = filepath; };
       virtual void print_dirents() const override;
+      virtual string dir_tail() const override { return "/"; };
 };
 
 #endif

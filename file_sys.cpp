@@ -94,6 +94,9 @@ inode_ptr base_file::mkfile (const string&) {
  // Iterate through the vector, find all the lengths of the strings in the vector, and assign it to size... rn its always 0
 size_t plain_file::size() const { 
    size_t size {0};
+   for (auto i : this->data) {
+      size += i.length();
+   }
    DEBUGF ('i', "size = " << size);
    return size;
 }
@@ -106,12 +109,22 @@ const wordvec& plain_file::readfile() const {
 
 // TODO
 void plain_file::writefile (const wordvec& words) {
+   // lets start with just one thing being added
+   // TODO rewrite over file doesnt work
+   wordvec::const_iterator it = words.begin();
+   it += 2;
+   data.clear();
+   while (it != words.end())
+   {
+      this->data.push_back(*it);
+      it++;
+   }
    DEBUGF ('i', words);
 }
 
 // TODO num of entried in dir
 size_t directory::size() const {
-   size_t size {0};
+   size_t size = this->dirents.size();
    DEBUGF ('i', "size = " << size);
    return size;
 }
@@ -134,21 +147,29 @@ inode_ptr directory::mkdir (const string& dirname) {
    return dir;
 }
 
-// TODO enters a new file in dir
 inode_ptr directory::mkfile (const string& filename) {
+   // TODO add path to plain_file? is it needed?
+   // TODO check for same name
+   inode_ptr file = make_shared<inode>(file_type::PLAIN_TYPE);  // public ctor
+   this->dirents.insert(pair<string, inode_ptr>(filename,file));
+   string parent_path = this->get_path(); // the current instance of dir
+   string new_path = parent_path + filename + "";
+   file->get_contents()->set_path(new_path);
    DEBUGF ('i', filename);
-   return nullptr;
+   return file;
 }
 
 void directory::print_dirents() const {
    map<string, inode_ptr>::const_iterator it = this->dirents.begin();
    while (it != this->dirents.end())
    {
-      // TODO size
       // TODO spacing
       cout << it->second->get_inode_nr() << " ";
-       cout << it->first << endl;
+      cout << it->second->get_contents()->size() << " ";
+      cout << it->first << it->second->get_contents()->dir_tail() << endl;
+      // cout << it->second->get_contents()->get_path() << endl;
+      // it->second->get_contents()->path_cap() << endl;
        // Increment the Iterator to point to next entry
-       it++;
+      it++;
    }
 }
