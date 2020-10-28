@@ -41,30 +41,33 @@ int exit_status_message() {
 }
 
 void fn_cat (inode_state& state, const wordvec& words){
+   DEBUGF ('c', state);
+   DEBUGF ('c', words);
+   string filename = "";
    string err = "No such file or directory";
    if (words.size() > 2) { cout << err << endl; return; }
    err = "cat: " + words.at(1) + ": " + err;
-   try
-   { 
-      auto toCat = state.get_inode_ptr_from_path(words.at(1));
-      for ( auto i : toCat->get_contents()->readfile())
-      {
-         cout << i << endl; 
-      }
+   try { 
+      auto dir = state.get_inode_ptr_from_path(words.at(1), filename);
+      auto toCat = dir->get_contents()->get_dirents()[filename];
+      for ( auto i : toCat->get_contents()->readfile()) {
+         cout << i << endl; }
    }
    catch(std::exception const& e) {
-      cout << err << endl;
-   }
-   DEBUGF ('c', state);
-   DEBUGF ('c', words);
+      cout << err << endl; return; }
 }
 
 void fn_cd (inode_state& state, const wordvec& words){
-   // TODO check for words
-   // TODO check if plain_file
-   state.set_cwd(
-      state.get_cwd()->get_contents()->get_dirents()[words.at(1)]
-   );
+   // TODO parsing
+   auto err = "Please specify directory name. No plain files.";
+   if (words.size() > 2) { state.set_cwd(state.get_root()); return; }
+   try {
+      state.set_cwd(
+         state.get_cwd()->get_contents()->get_dirents()[words.at(1)]
+      );
+   }
+   catch(std::exception const& e) {
+      cout << err << endl; return; }
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
@@ -98,27 +101,28 @@ void fn_lsr (inode_state& state, const wordvec& words){
 }
 
 void fn_make (inode_state& state, const wordvec& words){
-   // TODO check for name dupe
-   // TODO check for not long enough entry
-   // TODO rewrite over file doesnt work
+   // TODO parsing
+   auto err = "Please specify file name. No directories.";
+   if (words.size() < 2) { cout << err << endl; return; }
+   try
+   {
+      string back_name = "";
+      auto toMake = state.get_inode_ptr_from_path(words.at(1), back_name);
+      auto existing_file_dirents = toMake->get_contents()
+         ->get_dirents();
+      // auto back_name = split(words.at(1), "/").back();
+      if(existing_file_dirents.find(back_name) == 
+         existing_file_dirents.end()) 
+      { 
+         toMake->get_contents()->mkfile(back_name)
+            ->get_contents()->writefile(words); }
+      else { existing_file_dirents[back_name]->get_contents()
+            ->writefile(words); }
+   }
+   catch(std::exception const& e) {
+      cout << err << endl;
+   }
 
-   // use mkfile w words.at(0)
-   // use writefile on that inodeptr
-   // Clever! mkfile returns a ptr to new file
-   state.get_cwd()->get_contents()->mkfile(words.at(1))
-      ->get_contents()->writefile(words);
-
-   // before adding data to that file w writedata, lets see if we can allocate this
-   // state.get_cwd()->get_contents()->writefile(words);
-   // wordvec::const_iterator it = words.begin();
-   // while (it != words.end())
-   // {
-   //    // cat it to data. smth like
-   //    data.push_back(*it);
-   //    cout << *it << endl;
-   //    it++;
-   // }
-   // state.getcwd()->get_contents()->writefile(words)
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }

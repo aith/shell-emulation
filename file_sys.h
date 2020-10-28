@@ -48,7 +48,7 @@ class inode_state {
       void set_cwd(inode_ptr& new_cwd) { this->cwd = new_cwd; }
       inode_ptr& get_root() { return root; }
 
-      inode_ptr& get_inode_ptr_from_path(string path);
+      inode_ptr& get_inode_ptr_from_path(string, string&);
 };
 
 // class inode -
@@ -76,7 +76,6 @@ class inode {
       base_file_ptr& get_contents() {
          return contents;
       };
-      inode_ptr& recur_get_dir(wordvec& files, size_t counter);
 };
 
 
@@ -115,6 +114,8 @@ class base_file {
       virtual void print_dirents() const { 
          throw file_error ("is a " + error_file_type()); };
       virtual string dir_tail() const { 
+         throw file_error ("is a " + error_file_type()); };
+      virtual inode_ptr& recur_get_dir(wordvec&, size_t) {
          throw file_error ("is a " + error_file_type()); };
 };
 
@@ -187,6 +188,7 @@ class directory: public base_file { // Just a map
       virtual void set_path(const string& filepath) override { this->path = filepath; };
       virtual void print_dirents() const override;
       virtual string dir_tail() const override { return "/"; };
+      virtual inode_ptr& recur_get_dir(wordvec& files, size_t counter) override;
 };
 
 #endif

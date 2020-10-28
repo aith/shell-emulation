@@ -113,7 +113,7 @@ void plain_file::writefile (const wordvec& words) {
    // TODO rewrite over file doesnt work
    wordvec::const_iterator it = words.begin();
    it += 2;
-   data.clear();
+   this->data.clear();
    while (it != words.end())
    {
       this->data.push_back(*it);
@@ -174,37 +174,35 @@ void directory::print_dirents() const {
    }
 }
 
-inode_ptr& inode_state::get_inode_ptr_from_path(string path) {
+// This goes tho the second-to-last item in the filepath given
+inode_ptr& inode_state::get_inode_ptr_from_path(string path, string& tail) {
    auto files = split(path, "/");
-   // TODO refactor out two returns
-   // inode_ptr& ptr;
+   tail = files.back();
    size_t counter = 0;
-   if (path.at(0) == '/') {
-      return this->get_root()->recur_get_dir(files, counter);
-   }
-   else
-      {
-         return this->get_cwd()->recur_get_dir(files, counter);
-   }
-   // before, check if i is the second to last element in wordvec, return it if true. 
-   // then, for each files.at(i++), try { entry = get_dirents["files.at(i)], 
-   //check if entry == end(), then repeat with (entry, files, ++i)
-
+   // cout << "size is " << files.size();
+   if (path.at(0) == '/') { 
+      // return this->get_root()->recur_get_dir(files, counter); }
+      return this->get_root()->get_contents()->recur_get_dir(files, counter); }
+   else { 
+      // if (files.size() < 2) { cout << "hi"; return this->get_cwd(); }
+      // else 
+      return this->get_cwd()->get_contents()->recur_get_dir(files, counter); }
 }
 
-inode_ptr& inode::recur_get_dir(wordvec& files, size_t counter) {
+inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
    // if counter not == size of files, descend into dirents
    try
    {
-      // auto next_entry = this->get_contents()->get_dirents()[files.at(counter)];
-      // first, check if dirent exists
-      if (this->get_contents()->get_dirents().find(files.at(counter)) == this->get_contents()->get_dirents().end()) { throw file_error("Going to catch"); };
-      if (counter < files.size() - 1){ 
-         // cout << files.at(counter);
-         return this->get_contents()->get_dirents()[files.at(counter)]->recur_get_dir(files, counter + 1);
+      auto _dirents = this->get_dirents();
+      if (counter < files.size() - 1) { 
+         // If an intermediate dir is not found, throw...
+         if (_dirents.find(files.at(counter)) == _dirents.end()) { 
+            cout << "wrong";
+            throw file_error("Going to catch"); };
+         return _dirents[files.at(counter)]->get_contents()->recur_get_dir(files, counter + 1);
       }
       else  {
-         return this->get_contents()->get_dirents()[files.at(counter)];
+         return _dirents["."];
       }
    }
    catch(std::exception const& e) {
