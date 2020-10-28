@@ -157,9 +157,9 @@ void fn_mkdir (inode_state& state, const wordvec& words){
    string back_name = "";
    auto toMakeIn = state.get_inode_ptr_from_path(words.at(1), back_name);
    auto existing_file_dirents = toMakeIn->get_contents() ->get_dirents();
-   if(existing_file_dirents.find(back_name) == 
-      existing_file_dirents.end()) 
-   {
+   // if(existing_file_dirents.find(back_name) == 
+   //    existing_file_dirents.end()) 
+   // {
    // TODO parse path
    // TODO check duplicates and then err
    state.get_cwd()->get_contents()->mkdir(words.at(1));
