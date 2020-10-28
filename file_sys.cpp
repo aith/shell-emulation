@@ -160,6 +160,10 @@ inode_ptr directory::mkfile (const string& filename) {
 }
 
 void directory::print_dirents() const {
+   auto path = this->path;
+   if (path.length() <  2) cout << "/: " << endl;
+   else cout << path.substr(0, path.size()-1) << ":" << endl; 
+
    map<string, inode_ptr>::const_iterator it = this->dirents.begin();
    while (it != this->dirents.end())
    {
@@ -190,14 +194,12 @@ inode_ptr& inode_state::get_inode_ptr_from_path(string path, string& tail) {
 }
 
 inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
-   // if counter not == size of files, descend into dirents
    try
    {
       auto _dirents = this->get_dirents();
       if (counter < files.size() - 1) { 
-         // If an intermediate dir is not found, throw...
+         // If an middle-man dir is not found, throw...
          if (_dirents.find(files.at(counter)) == _dirents.end()) { 
-            cout << "wrong";
             throw file_error("Going to catch"); };
          return _dirents[files.at(counter)]->get_contents()->recur_get_dir(files, counter + 1);
       }
@@ -207,5 +209,19 @@ inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
    }
    catch(std::exception const& e) {
       throw file_error("Exiting recursive loop");
+   }
+}
+
+void directory::recur_lsr() {
+
+   map<string, inode_ptr>::const_iterator it = this->dirents.begin();
+   it++; // Skips . and ..
+   it++; 
+   this->print_dirents();
+   while (it != this->dirents.end())
+   {
+      try { it->second->get_contents()->recur_lsr(); }
+      catch(std::exception const& e) {}
+      it++;
    }
 }

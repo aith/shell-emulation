@@ -117,6 +117,8 @@ class base_file {
          throw file_error ("is a " + error_file_type()); };
       virtual inode_ptr& recur_get_dir(wordvec&, size_t) {
          throw file_error ("is a " + error_file_type()); };
+      virtual void recur_lsr() {
+         throw file_error ("is a " + error_file_type()); };
 };
 
 // class plain_file -
@@ -189,6 +191,7 @@ class directory: public base_file { // Just a map
       virtual void print_dirents() const override;
       virtual string dir_tail() const override { return "/"; };
       virtual inode_ptr& recur_get_dir(wordvec& files, size_t counter) override;
+      virtual void recur_lsr() override;
 };
 
 #endif

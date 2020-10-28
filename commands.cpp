@@ -41,11 +41,12 @@ int exit_status_message() {
 }
 
 void fn_cat (inode_state& state, const wordvec& words){
+   // DONE
    DEBUGF ('c', state);
    DEBUGF ('c', words);
    string filename = "";
    string err = "No such file or directory";
-   if (words.size() > 2) { cout << err << endl; return; }
+   if (words.size() < 2) { cout << err << endl; return; }
    err = "cat: " + words.at(1) + ": " + err;
    try { 
       auto dir = state.get_inode_ptr_from_path(words.at(1), filename);
@@ -58,13 +59,14 @@ void fn_cat (inode_state& state, const wordvec& words){
 }
 
 void fn_cd (inode_state& state, const wordvec& words){
-   // TODO parsing
+   // DONEa
    auto err = "Please specify directory name. No plain files.";
-   if (words.size() > 2) { state.set_cwd(state.get_root()); return; }
+   string dirname = "";
+   if (words.size() < 2) { state.set_cwd(state.get_root()); return; }
+   auto dir = state.get_inode_ptr_from_path(words.at(1), dirname);
+   auto toCd = dir->get_contents()->get_dirents()[dirname];
    try {
-      state.set_cwd(
-         state.get_cwd()->get_contents()->get_dirents()[words.at(1)]
-      );
+      state.set_cwd( toCd);
    }
    catch(std::exception const& e) {
       cout << err << endl; return; }
@@ -73,7 +75,6 @@ void fn_cd (inode_state& state, const wordvec& words){
 }
 
 void fn_echo (inode_state& state, const wordvec& words){
-   // TODO is this done??
    DEBUGF ('c', state);
    DEBUGF ('c', words);
    cout << word_range (words.cbegin() + 1, words.cend()) << endl;
@@ -87,21 +88,46 @@ void fn_exit (inode_state& state, const wordvec& words){
 }
 
 void fn_ls (inode_state& state, const wordvec& words){
-   // for all files in dirent, cout them
-   // creating print_dirents so I can access them easier
-   // TODO parse
-   state.get_cwd()->get_contents()->print_dirents();
+   // DONE
+   auto err = "Please specify directory name. No plain files.";
+   string dirname = "";
+   if (words.size() < 2) { 
+      state.get_cwd()->get_contents()->print_dirents(); return; }
+   auto dir = state.get_inode_ptr_from_path(words.at(1), dirname);
+   auto toLs = dir->get_contents()->get_dirents()[dirname];
+   try {
+      // Error check that it's a directory. Add this to all of the above
+      toLs = toLs->get_contents()->get_dirents()["."];
+
+      toLs->get_contents()->print_dirents();
+   }
+   catch(std::exception const& e) {
+      cout << err << endl; return; }
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
 
 void fn_lsr (inode_state& state, const wordvec& words){
+   auto err = "Please specify directory name. No plain files.";
+   auto dirToLsr = state.get_root();
+   if (words.size() > 1) {
+      string dirname = "";
+      try {
+         auto dir = state.get_inode_ptr_from_path(words.at(1), dirname);
+         dirToLsr = dir->get_contents()->get_dirents()[dirname];
+         // Error check that it's a directory. 
+         dirToLsr = dirToLsr->get_contents()->get_dirents()["."];
+      }
+      catch(std::exception const& e) {
+         cout << err << endl; return; }
+   }
+   dirToLsr->get_contents()->recur_lsr();
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
 
 void fn_make (inode_state& state, const wordvec& words){
-   // TODO parsing
+   // DONE
    auto err = "Please specify file name. No directories.";
    if (words.size() < 2) { cout << err << endl; return; }
    try
@@ -128,9 +154,12 @@ void fn_make (inode_state& state, const wordvec& words){
 }
 
 void fn_mkdir (inode_state& state, const wordvec& words){
-   // is this right? the base file taht inode-ptr points to
-   // the pointers themselves dont have the get commands, 
-   // so you use get from what they point to
+   string back_name = "";
+   auto toMakeIn = state.get_inode_ptr_from_path(words.at(1), back_name);
+   auto existing_file_dirents = toMakeIn->get_contents() ->get_dirents();
+   if(existing_file_dirents.find(back_name) == 
+      existing_file_dirents.end()) 
+   {
    // TODO parse path
    // TODO check duplicates and then err
    state.get_cwd()->get_contents()->mkdir(words.at(1));
@@ -144,7 +173,10 @@ void fn_prompt (inode_state& state, const wordvec& words){
 }
 
 void fn_pwd (inode_state& state, const wordvec& words){
-   cout << state.get_cwd()->get_contents()->get_path() << endl;
+   auto toPrint = state.get_cwd()->get_contents()->get_path();
+   if (state.get_cwd() != state.get_root()) { 
+      toPrint = toPrint.substr(0, toPrint.size()-1); }
+   cout << toPrint << endl;
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
