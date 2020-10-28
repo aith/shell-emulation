@@ -41,20 +41,17 @@ int exit_status_message() {
 }
 
 void fn_cat (inode_state& state, const wordvec& words){
-   // TODO parsing
    string err = "No such file or directory";
    if (words.size() > 2) { cout << err << endl; return; }
    err = "cat: " + words.at(1) + ": " + err;
-   // auto entry = state.get_cwd()->get_contents()->get_dirents()[words.at(1)];
-   auto map = state.get_cwd()->get_contents()->get_dirents();
-   if (map.find(words.at(1)) == map.end()) { cout << err << endl; return; }
-   try {
-      for ( auto i : map[words.at(1)]->get_contents()->readfile()) 
+   try
+   { 
+      auto toCat = state.get_inode_ptr_from_path(words.at(1));
+      for ( auto i : toCat->get_contents()->readfile())
       {
          cout << i << endl; 
       }
    }
-   // is this the safest version?
    catch(std::exception const& e) {
       cout << err << endl;
    }

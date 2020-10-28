@@ -1,4 +1,6 @@
 Things I learned:
 - How to use virtual functions and proper inheritence
 - Remember that the functions that you want to polymorph
- have the same qualifiers and parameters
+  have the same qualifiers and parameters
+- It's more efficient to pass large objects by reference. 
+  Just make sure to keep them const when not modifying them.

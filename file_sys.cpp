@@ -173,3 +173,41 @@ void directory::print_dirents() const {
       it++;
    }
 }
+
+inode_ptr& inode_state::get_inode_ptr_from_path(string path) {
+   auto files = split(path, "/");
+   // TODO refactor out two returns
+   // inode_ptr& ptr;
+   size_t counter = 0;
+   if (path.at(0) == '/') {
+      return this->get_root()->recur_get_dir(files, counter);
+   }
+   else
+      {
+         return this->get_cwd()->recur_get_dir(files, counter);
+   }
+   // before, check if i is the second to last element in wordvec, return it if true. 
+   // then, for each files.at(i++), try { entry = get_dirents["files.at(i)], 
+   //check if entry == end(), then repeat with (entry, files, ++i)
+
+}
+
+inode_ptr& inode::recur_get_dir(wordvec& files, size_t counter) {
+   // if counter not == size of files, descend into dirents
+   try
+   {
+      // auto next_entry = this->get_contents()->get_dirents()[files.at(counter)];
+      // first, check if dirent exists
+      if (this->get_contents()->get_dirents().find(files.at(counter)) == this->get_contents()->get_dirents().end()) { throw file_error("Going to catch"); };
+      if (counter < files.size() - 1){ 
+         // cout << files.at(counter);
+         return this->get_contents()->get_dirents()[files.at(counter)]->recur_get_dir(files, counter + 1);
+      }
+      else  {
+         return this->get_contents()->get_dirents()[files.at(counter)];
+      }
+   }
+   catch(std::exception const& e) {
+      throw file_error("Exiting recursive loop");
+   }
+}

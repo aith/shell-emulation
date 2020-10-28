@@ -58,4 +58,3 @@ ostream& complain() {
    cerr << exec::execname() << ": ";
    return cerr;
 }
-

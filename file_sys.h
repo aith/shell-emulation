@@ -47,6 +47,8 @@ class inode_state {
       inode_ptr& get_cwd() { return cwd; }
       void set_cwd(inode_ptr& new_cwd) { this->cwd = new_cwd; }
       inode_ptr& get_root() { return root; }
+
+      inode_ptr& get_inode_ptr_from_path(string path);
 };
 
 // class inode -
@@ -71,9 +73,10 @@ class inode {
    public:
       inode (file_type);  // declare ctor
       size_t get_inode_nr() const;
-      virtual base_file_ptr& get_contents() {
+      base_file_ptr& get_contents() {
          return contents;
       };
+      inode_ptr& recur_get_dir(wordvec& files, size_t counter);
 };
 
 
