@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>
+#include <iomanip>      // std::setw
 
 using namespace std;
 
@@ -35,6 +36,7 @@ inode_state::inode_state() {
    DEBUGF ('i', "root = " << root << ", cwd = " << cwd
       << ", prompt = \"" << prompt() << "\"");
 }
+
 
 const string& inode_state::prompt() const { return prompt_; }
 
@@ -140,9 +142,7 @@ void directory::remove (const string& filename) {
       try {
          auto new_dirents = this->dirents[filename]->get_contents()->get_dirents();
          if (new_dirents.size() < 3) {
-            new_dirents.erase(".");
-            new_dirents.erase("..");
-            this->dirents.erase(filename);
+            this->dirents[filename]->get_contents() = nullptr;
             return;
          }
          else { cout << "Directory is not empty." << endl; return; }
@@ -150,8 +150,6 @@ void directory::remove (const string& filename) {
       catch(std::exception const& e) {
          // its a plain file, so just remove it by deref pointers
          this->dirents[filename]->get_contents() = nullptr;
-         this->dirents[filename] = nullptr;
-         this->dirents.erase(filename);
          return;
          // TODO? u may need to erase the pointer in the map too.
       }
@@ -194,9 +192,8 @@ void directory::print_dirents() const {
    map<string, inode_ptr>::const_iterator it = this->dirents.begin();
    while (it != this->dirents.end())
    {
-      // TODO spacing
-      cout << it->second->get_inode_nr() << " ";
-      cout << it->second->get_contents()->size() << " ";
+      cout << setw(6) << it->second->get_inode_nr();
+      cout << setw(8) << it->second->get_contents()->size() << "  ";
       cout << it->first << it->second->get_contents()->dir_tail() << endl;
       // cout << it->second->get_contents()->get_path() << endl;
       // it->second->get_contents()->path_cap() << endl;
@@ -208,11 +205,11 @@ void directory::print_dirents() const {
 // This goes tho the second-to-last item in the filepath given
 inode_ptr& inode_state::get_inode_ptr_from_path(string path, string& tail) {
    auto files = split(path, "/");
-   if (files.size() == 0) files.push_back("/");
+   if (files.size() < 1) files.push_back("/");
    tail = files.back();
    size_t counter = 0;
    // cout << "size is " << files.size();
-   if (path.at(0) == '/') { 
+   if (tail == "/") { 
       // return this->get_root()->recur_get_dir(files, counter); }
       return this->get_root()->get_contents()->recur_get_dir(files, counter); }
    else { 
@@ -260,7 +257,8 @@ void directory::rmr(string& filename) {
    // passed in the directory from which filename will be deleted
    try {
       // confirm filename exists
-      if (this->dirents.find(filename) == this->dirents.end()) { 
+      if (this->dirents.find(filename) == this->dirents.end() 
+      && filename != ".." && filename != "/") { 
          throw file_error("Null filename: Going to catch"); };
       // if (_dirents.size() < 3) { this->remove(filename); return; }
       this->dirents[filename]->get_contents()->recur_rmr();
@@ -279,17 +277,26 @@ void directory::rmr(string& filename) {
 }
 
 void directory::recur_rmr() {
+   // Removes all files in the directory called from
    // for each object in the dir go down if its a dir
    map<string, inode_ptr>::iterator it = this->dirents.begin();
    it++;
    it++;
    while (it != this->dirents.end()) {
       try { 
-         it->second->get_contents()->recur_rmr();
-         it->second->get_contents()->get_dirents().erase(".");
-         it->second->get_contents()->get_dirents().erase("..");
-         it->second->get_contents() = nullptr;
-         it->second = nullptr;
+         this->dirents[it->first]->get_contents()->recur_rmr();
+         this->dirents[it->first]->get_contents() = nullptr;
+         
+         // this->dirents.erase(it->first);
+         // this->dirents[it->first]->get_contents()->get_dirents().erase(".");
+         // this->dirents[it->first]->get_contents()->get_dirents().erase("..");
+         // this->dirents[it->first]->get_contents() = nullptr;
+         // this = nullptr;
+         // it->second->get_contents()->get_dirents().erase(".");
+         // it->second->get_contents()->get_dirents().erase("..");
+         // it->second->get_contents() = nullptr;
+         // it->second = nullptr;
+         // this->get_dirents().erase(it->first);  // new
       }
       catch(std::exception const& e) {
          // is a plain file
@@ -297,4 +304,15 @@ void directory::recur_rmr() {
       }
       it++;
    }
+}
+
+
+inode_state::~inode_state() {
+//    // let's let the compiletr call it on exit
+//    this->get_cwd() = this->get_root();
+//    this->get_root()->get_contents()->recur_rmr();
+//    this->get_root()->get_contents()->get_dirents().erase(".");
+//    this->get_root()->get_contents()->get_dirents().erase("..");
+//    this->get_root()->get_contents() = nullptr;
+//    this->get_root() = nullptr;
 }

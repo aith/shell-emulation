@@ -17,6 +17,7 @@ command_hash cmd_hash {
    {"rm"    , fn_rm    },
    {"rmr"   , fn_rmr   },
    {"#"     , fn_ignore},
+   {"^D"    , fn_exit},
 };
 
 command_fn find_command_fn (const string& cmd) {
@@ -73,6 +74,7 @@ void fn_cd (inode_state& state, const wordvec& words){
    try {
       auto dir = state.get_inode_ptr_from_path(words.at(1), dirname);
       auto dirents = dir->get_contents()->get_dirents();
+      if (dirname == "/") { state.set_cwd(state.get_root()); return; }
       if (dirents.find(dirname) == dirents.end()) {
          throw file_error("Going to catch"); };
       auto toCd = dirents[dirname];
@@ -93,8 +95,15 @@ void fn_echo (inode_state& state, const wordvec& words){
 
 
 void fn_exit (inode_state& state, const wordvec& words){
-   state.get_cwd() = nullptr;
+   // call dtor here
+   // state.~inode_state();
+   state.get_cwd() = state.get_root();
+   state.get_root()->get_contents()->recur_rmr();
+   state.get_root()->get_contents()->get_dirents().erase(".");
+   state.get_root()->get_contents()->get_dirents().erase("..");
+   state.get_root()->get_contents() = nullptr;
    state.get_root() = nullptr;
+
    DEBUGF ('c', state);
    DEBUGF ('c', words);
    throw ysh_exit();
@@ -109,6 +118,8 @@ void fn_ls (inode_state& state, const wordvec& words){
          state.get_cwd()->get_contents()->print_dirents(); return; }
       auto dir = state.get_inode_ptr_from_path(words.at(1), dirname);
       auto dirents = dir->get_contents()->get_dirents();
+      if (dirname == "/") { state.get_root()->get_contents()->print_dirents(); 
+         return; }
       if (dirents.find(dirname) == dirents.end()) {
          throw file_error("Going to catch"); };
       auto toLs = dirents[dirname];

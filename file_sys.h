@@ -41,6 +41,7 @@ class inode_state {
       inode_state (const inode_state&) = delete; // copy ctor
       inode_state& operator= (const inode_state&) = delete; // op=
       inode_state();  // ctor
+      ~inode_state(); // dtor
       const string& prompt() const;  // getter
       void prompt (const string& str) { this->prompt_ = str; }   // setter
 
