@@ -34,7 +34,6 @@ command_fn find_command_fn (const string& cmd) {
 
 command_error::command_error (const string& what):
             runtime_error (what) {
-cout << "hihihi";
 }
 
 int exit_status_message() {
@@ -189,11 +188,11 @@ void fn_mkdir (inode_state& state, const wordvec& words){
    string back_name = "";
    try {
       auto toMakeIn = state.get_inode_ptr_from_path(words.at(1), back_name);
-      auto dirents = toMakeIn->get_contents()->get_dirents();
-      if (dirents.find(back_name) == dirents.end()) { // If doesn't exist
-         toMakeIn->get_contents()->mkdir(back_name);
-      }
-      else { cout << "Directory already exists." << endl; };
+      // auto dirents = toMakeIn->get_contents()->get_dirents();
+      // if (dirents.find(back_name) == dirents.end()) { // If doesn't exist
+      //    toMakeIn->get_contents()->mkdir(back_name);
+      // }
+      // else { cout << "Directory already exists." << endl; };
    }
    catch(std::exception const& e) {
       cout << "Directory path does not exist." << endl; 
