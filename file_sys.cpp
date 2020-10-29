@@ -208,6 +208,7 @@ void directory::print_dirents() const {
 // This goes tho the second-to-last item in the filepath given
 inode_ptr& inode_state::get_inode_ptr_from_path(string path, string& tail) {
    auto files = split(path, "/");
+   if (files.size() == 0) files.push_back("/");
    tail = files.back();
    size_t counter = 0;
    // cout << "size is " << files.size();

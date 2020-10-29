@@ -42,7 +42,7 @@ class inode_state {
       inode_state& operator= (const inode_state&) = delete; // op=
       inode_state();  // ctor
       const string& prompt() const;  // getter
-      void prompt (const string&);   // setter
+      void prompt (const string& str) { this->prompt_ = str; }   // setter
 
       inode_ptr& get_cwd() { return cwd; }
       void set_cwd(inode_ptr& new_cwd) { this->cwd = new_cwd; }

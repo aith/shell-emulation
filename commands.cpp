@@ -16,6 +16,7 @@ command_hash cmd_hash {
    {"pwd"   , fn_pwd   },
    {"rm"    , fn_rm    },
    {"rmr"   , fn_rmr   },
+   {"#"     , fn_ignore},
 };
 
 command_fn find_command_fn (const string& cmd) {
@@ -32,6 +33,7 @@ command_fn find_command_fn (const string& cmd) {
 
 command_error::command_error (const string& what):
             runtime_error (what) {
+cout << "hihihi";
 }
 
 int exit_status_message() {
@@ -56,7 +58,8 @@ void fn_cat (inode_state& state, const wordvec& words){
          throw file_error("Going to catch"); };
       auto toCat = dir->get_contents()->get_dirents()[filename];
       for ( auto i : toCat->get_contents()->readfile()) {
-         cout << i << endl; }
+         cout << i << " "; }
+      cout << endl;
    }
    catch(std::exception const& e) {
       cout << err << endl; return; }
@@ -128,6 +131,7 @@ void fn_lsr (inode_state& state, const wordvec& words){
       try {
          auto dir = state.get_inode_ptr_from_path(words.at(1), dirname);
          auto dirents = dir->get_contents()->get_dirents();
+         if (dirname == "/") { dirname = "."; }
          if (dirents.find(dirname) == dirents.end()) {
             throw file_error("Going to catch"); };
          dirToLsr = dirents[dirname];
@@ -189,6 +193,13 @@ void fn_mkdir (inode_state& state, const wordvec& words){
 }
 
 void fn_prompt (inode_state& state, const wordvec& words){
+   string concat = "";
+   for (size_t i = 1; i < words.size(); i++) { 
+      concat += words.at(i); 
+      concat += " ";
+   }
+   if (concat ==  "") concat = " ";
+   state.prompt(concat);
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
@@ -209,7 +220,7 @@ void fn_rm (inode_state& state, const wordvec& words){
    string toDelete = "";
    try {
       auto toDeleteFrom = state.get_inode_ptr_from_path(words.at(1), toDelete);
-      if (toDelete == "." || toDelete == ".." || toDelete == "/") 
+      if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
       toDeleteFrom->get_contents()->remove(toDelete); // handles file confirming
    }
@@ -224,7 +235,7 @@ void fn_rmr (inode_state& state, const wordvec& words){
    string toDelete = "";
    try {
       auto toDeleteFrom = state.get_inode_ptr_from_path(words.at(1), toDelete);
-      if (toDelete == "." || toDelete == ".." || toDelete == "/") 
+      if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
       toDeleteFrom->get_contents()->rmr(toDelete); // handles file confirming
       }
@@ -234,4 +245,9 @@ void fn_rmr (inode_state& state, const wordvec& words){
    DEBUGF ('c', state);
    DEBUGF ('c', words);
 }
+
+void fn_ignore (inode_state& state, const wordvec& words){
+   return;
+}
+   
 
