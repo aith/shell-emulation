@@ -119,6 +119,10 @@ class base_file {
          throw file_error ("is a " + error_file_type()); };
       virtual void recur_lsr() {
          throw file_error ("is a " + error_file_type()); };
+      virtual void rmr(string&) {
+         throw file_error ("is a " + error_file_type()); };
+      virtual void recur_rmr() {
+         throw file_error ("is a " + error_file_type()); };
 };
 
 // class plain_file -
@@ -146,7 +150,6 @@ class plain_file: public base_file {
       virtual void set_path(const string& filepath) override { this->path = filepath; };
       virtual string dir_tail() const override { return ""; };
       virtual string& get_path() override { return path; };
-      
 };
 
 // class directory -
@@ -185,13 +188,15 @@ class directory: public base_file { // Just a map
       // map.insert(pair) // make a setter func with this code
       // TODO: Does this return the reference? How?
       virtual map<string,inode_ptr>& get_dirents() override {
-         return dirents; }; // Pass by reference. Seehttps://www.tutorialspoint.com/cplusplus/returning_values_by_reference.htm
+         return dirents; };
       virtual string& get_path() override { return path; };
       virtual void set_path(const string& filepath) override { this->path = filepath; };
       virtual void print_dirents() const override;
       virtual string dir_tail() const override { return "/"; };
       virtual inode_ptr& recur_get_dir(wordvec& files, size_t counter) override;
       virtual void recur_lsr() override;
+      virtual void rmr(string&) override;
+      virtual void recur_rmr() override;
 };
 
 #endif

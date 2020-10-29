@@ -27,14 +27,13 @@ ostream& operator<< (ostream& out, file_type type) {
 
 // TODO
 inode_state::inode_state() {
-   // make_shared does allocate space for the object it points to bc of ctor
-   root = make_shared<inode>(file_type::DIRECTORY_TYPE);  // public ctor
+   root = make_shared<inode>(file_type::DIRECTORY_TYPE);
    cwd = root;
    root->contents->get_dirents().insert(pair<string, inode_ptr>(".",root));
    root->contents->get_dirents().insert(pair<string, inode_ptr>("..",root));
    root->contents->set_path("/");
    DEBUGF ('i', "root = " << root << ", cwd = " << cwd
-          << ", prompt = \"" << prompt() << "\"");
+      << ", prompt = \"" << prompt() << "\"");
 }
 
 const string& inode_state::prompt() const { return prompt_; }
@@ -132,6 +131,34 @@ size_t directory::size() const {
 // TODO remove file
 void directory::remove (const string& filename) {
    DEBUGF ('i', filename);
+   // assuming we don't need to 'delete'
+   // check if dirents only . and .. things, and then remove this directory from
+   // .. using the filename given
+
+   // check if this dir has filename, then try running the individual remove
+   if (this->dirents.find(filename) != this->dirents.end()) {
+      try {
+         auto new_dirents = this->dirents[filename]->get_contents()->get_dirents();
+         if (new_dirents.size() < 3) {
+            new_dirents.erase(".");
+            new_dirents.erase("..");
+            this->dirents.erase(filename);
+            return;
+         }
+         else { cout << "Directory is not empty." << endl; return; }
+      }
+      catch(std::exception const& e) {
+         // its a plain file, so just remove it by deref pointers
+         this->dirents[filename]->get_contents() = nullptr;
+         this->dirents[filename] = nullptr;
+         this->dirents.erase(filename);
+         return;
+         // TODO? u may need to erase the pointer in the map too.
+      }
+   }
+   else {
+      cout << "File does not exist." << endl;
+   }
 }
 
 // TODO. need to add . and .. here.
@@ -160,9 +187,9 @@ inode_ptr directory::mkfile (const string& filename) {
 }
 
 void directory::print_dirents() const {
-   auto path = this->path;
-   if (path.length() <  2) cout << "/: " << endl;
-   else cout << path.substr(0, path.size()-1) << ":" << endl; 
+   auto _path = this->path;
+   if (_path.length() <  2) cout << "/: " << endl;
+   else cout << path.substr(0, _path.size()-1) << ":" << endl; 
 
    map<string, inode_ptr>::const_iterator it = this->dirents.begin();
    while (it != this->dirents.end())
@@ -196,6 +223,8 @@ inode_ptr& inode_state::get_inode_ptr_from_path(string path, string& tail) {
 inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
    try
    {
+      // make it so that if the dirs dont exist, just return. see "cd"
+      // what does cd do that ls doesnt
       auto _dirents = this->get_dirents();
       if (counter < files.size() - 1) { 
          // If an middle-man dir is not found, throw...
@@ -222,6 +251,49 @@ void directory::recur_lsr() {
    {
       try { it->second->get_contents()->recur_lsr(); }
       catch(std::exception const& e) {}
+      it++;
+   }
+}
+
+void directory::rmr(string& filename) {
+   // passed in the directory from which filename will be deleted
+   try {
+      // confirm filename exists
+      if (this->dirents.find(filename) == this->dirents.end()) { 
+         throw file_error("Null filename: Going to catch"); };
+      // if (_dirents.size() < 3) { this->remove(filename); return; }
+      this->dirents[filename]->get_contents()->recur_rmr();
+      //TODO remove from _dirents here
+      this->dirents[filename]->get_contents()->get_dirents().erase(".");
+      this->dirents[filename]->get_contents()->get_dirents().erase("..");
+      this->dirents[filename]->get_contents() = nullptr;
+      this->dirents[filename] = nullptr;
+      this->dirents.erase(filename);
+      // set size lower
+
+   }
+   catch(std::exception const& e) {
+      this->remove(filename); // Handles null
+   }
+}
+
+void directory::recur_rmr() {
+   // for each object in the dir go down if its a dir
+   map<string, inode_ptr>::iterator it = this->dirents.begin();
+   it++;
+   it++;
+   while (it != this->dirents.end()) {
+      try { 
+         it->second->get_contents()->recur_rmr();
+         it->second->get_contents()->get_dirents().erase(".");
+         it->second->get_contents()->get_dirents().erase("..");
+         it->second->get_contents() = nullptr;
+         it->second = nullptr;
+      }
+      catch(std::exception const& e) {
+         // is a plain file
+         this->remove(it->first);
+      }
       it++;
    }
 }
