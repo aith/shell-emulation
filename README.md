@@ -24,8 +24,8 @@ exit [status]
      missing, exit with status 0.  If a non-numeric argument is
      given, exit with status 127.
 ls [pathname...]
-     For each file listed, output consists of the inode number,
-     then the size, then the filename.
+     For each file or directory listed, output consists of the inode 
+     number, then the size, then the filename.
 lsr [pathname...]
      As for ls, but a recursive depth-first preorder traversal is
      done for subdirectories.

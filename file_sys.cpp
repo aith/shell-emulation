@@ -126,12 +126,14 @@ void directory::remove (const string& filename) {
          auto new_dirents = this->dirents[filename]->get_contents()->get_dirents();
          if (new_dirents.size() < 3) {
             this->dirents[filename]->get_contents() = nullptr;
+            this->dirents.erase(filename);
             return;
          }
          else { cout << "Directory is not empty." << endl; return; }
       }
       catch(std::exception const& e) {
          this->dirents[filename]->get_contents() = nullptr;
+         this->dirents.erase(filename);
          return;
       }
    }

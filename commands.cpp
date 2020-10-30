@@ -46,13 +46,12 @@ int exit_status_message() {
 void fn_cat (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
    string filename = "";
-   string err = "No such file or directory";
+   string err = "No such plain file.";
    for (size_t file_num = 1; file_num < words.size(); ++file_num){
       if (words.size() < 2) { cout << err << endl; continue; }
       err = "cat: " + words.at(1) + ": " + err;
       try { 
          auto dir = state.get_inode_ptr_from_path(words.at(file_num), filename);
-         // find first
          auto dirents = dir->get_contents()->get_dirents();
          if (dirents.find(filename) == dirents.end()) {
             throw file_error("Going to catch"); };
@@ -103,6 +102,7 @@ void fn_exit (inode_state& state, const wordvec& words){
       }
    }
    exec::status(val);
+
    state.get_cwd() = state.get_root();  // Let's recursively clear state
    state.get_root()->get_contents()->recur_rmr();
    state.get_root()->get_contents()->get_dirents().erase(".");
@@ -243,6 +243,12 @@ void fn_rm (inode_state& state, const wordvec& words){
       auto toDeleteFrom = state.get_inode_ptr_from_path(words.at(1), toDelete);
       if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
+      if (state.get_cwd() == 
+         toDeleteFrom->get_contents()->get_dirents()[toDelete] ) 
+      {
+         cout << "Cannot delete pwd." << endl;
+         return;
+      }
       toDeleteFrom->get_contents()->remove(toDelete); 
    }
    catch(std::exception const& e) {
@@ -258,6 +264,12 @@ void fn_rmr (inode_state& state, const wordvec& words){
       auto toDeleteFrom = state.get_inode_ptr_from_path(words.at(1), toDelete);
       if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
+      if (state.get_cwd() == 
+         toDeleteFrom->get_contents()->get_dirents()[toDelete] ) 
+      {
+         cout << "Cannot delete pwd." << endl;
+         return;
+      }   
       toDeleteFrom->get_contents()->rmr(toDelete); 
       }
    catch(std::exception const& e) {
