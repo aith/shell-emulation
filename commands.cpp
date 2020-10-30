@@ -51,7 +51,8 @@ void fn_cat (inode_state& state, const wordvec& words){
       if (words.size() < 2) { cout << err << endl; continue; }
       err = "cat: " + words.at(1) + ": " + err;
       try { 
-         auto dir = state.get_inode_ptr_from_path(words.at(file_num), filename);
+         auto dir = state.get_inode_ptr_from_path(
+            words.at(file_num), filename);
          auto dirents = dir->get_contents()->get_dirents();
          if (dirents.find(filename) == dirents.end()) {
             throw file_error("Going to catch"); };
@@ -121,10 +122,13 @@ void fn_ls (inode_state& state, const wordvec& words){
       auto dir = state.get_cwd();
       string dirname = "";
       try {
-         dir = state.get_inode_ptr_from_path(words.at(path_num), dirname);
+         dir = state.get_inode_ptr_from_path(
+            words.at(path_num), dirname);
          auto dirents = dir->get_contents()->get_dirents();
-         if (dirname == "/") { state.get_root()->get_contents()->print_dirents(); 
-            continue; }
+         if (dirname == "/") {
+            state.get_root()->get_contents()->print_dirents(); 
+            continue; 
+            }
          if (dirents.find(dirname) == dirents.end()) {
             throw file_error("Going to catch"); };
          auto toLs = dirents[dirname];
@@ -134,8 +138,10 @@ void fn_ls (inode_state& state, const wordvec& words){
       catch(std::exception const& e) {
          if (dir->get_contents()->get_dirents().find(dirname) !=
          dir->get_contents()->get_dirents().end() ) {
-            cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_inode_nr();
-            cout << setw(8) << dir->get_contents()->get_dirents()[dirname]->get_contents()->size() << "  ";
+            cout << setw(6) << dir->get_contents()->
+               get_dirents()[dirname]->get_inode_nr();
+            cout << setw(8) << dir->get_contents()->
+               get_dirents()[dirname]->get_contents()->size() << "  ";
             cout << dirname << endl; continue; 
          }
          else cout << "File does not exist." << endl;
@@ -154,7 +160,8 @@ void fn_lsr (inode_state& state, const wordvec& words){
       if (words.size() > 1) {
          string dirname = "";
          try {
-            dir = state.get_inode_ptr_from_path(words.at(path_num), dirname);
+            dir = state.get_inode_ptr_from_path(
+               words.at(path_num), dirname);
             auto dirents = dir->get_contents()->get_dirents();
             if (dirname == "/") { dirname = "."; }
             if (dirents.find(dirname) == dirents.end()) {
@@ -165,8 +172,10 @@ void fn_lsr (inode_state& state, const wordvec& words){
          catch(std::exception const& e) {
          if (dir->get_contents()->get_dirents().find(dirname) !=
          dir->get_contents()->get_dirents().end() ) {
-            cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_inode_nr() << "  ";
-            cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_contents()->size() << "  ";
+            cout << setw(6) << dir->get_contents()
+               ->get_dirents()[dirname]->get_inode_nr() << "  ";
+            cout << setw(6) << dir->get_contents()
+               ->get_dirents()[dirname]->get_contents()->size() << "  ";
             cout << dirname << endl; continue; 
          }
          else 
@@ -184,7 +193,8 @@ void fn_make (inode_state& state, const wordvec& words){
    try
    {
       string back_name = "";
-      auto toMake = state.get_inode_ptr_from_path(words.at(1), back_name);
+      auto toMake = state.get_inode_ptr_from_path(
+         words.at(1), back_name);
       auto existing_file_dirents = toMake->get_contents()
          ->get_dirents();
       if(existing_file_dirents.find(back_name) == 
@@ -204,9 +214,10 @@ void fn_mkdir (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
    string back_name = "";
    try {
-      auto toMakeIn = state.get_inode_ptr_from_path(words.at(1), back_name);
+      auto toMakeIn = state.get_inode_ptr_from_path(
+         words.at(1), back_name);
       auto dirents = toMakeIn->get_contents()->get_dirents();
-      if (dirents.find(back_name) == dirents.end()) { // If doesn't exist
+      if (dirents.find(back_name) == dirents.end()) { 
          toMakeIn->get_contents()->mkdir(back_name);
       }
       else { cout << "Directory already exists." << endl; };
@@ -240,7 +251,8 @@ void fn_rm (inode_state& state, const wordvec& words){
    auto err = "File does not exist.";
    string toDelete = "";
    try {
-      auto toDeleteFrom = state.get_inode_ptr_from_path(words.at(1), toDelete);
+      auto toDeleteFrom = state.get_inode_ptr_from_path(
+         words.at(1), toDelete);
       if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
       if (state.get_cwd() == 
@@ -261,7 +273,8 @@ void fn_rmr (inode_state& state, const wordvec& words){
    auto err = "Directory path does not exist.";
    string toDelete = "";
    try {
-      auto toDeleteFrom = state.get_inode_ptr_from_path(words.at(1), toDelete);
+      auto toDeleteFrom = state.get_inode_ptr_from_path(
+         words.at(1), toDelete);
       if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
       if (state.get_cwd() == 

@@ -34,16 +34,16 @@ class inode_state {
    friend class inode;
    friend ostream& operator<< (ostream& out, const inode_state&);
    private:
-      inode_ptr root {nullptr}; // TODO Setter TODO Getter... for every variable is this asg
-      inode_ptr cwd {nullptr};  // TODO Setter TODO Getter
+      inode_ptr root {nullptr};
+      inode_ptr cwd {nullptr}; 
       string prompt_ {"% "};
    public:
       inode_state (const inode_state&) = delete; // copy ctor
-      inode_state& operator= (const inode_state&) = delete; // op=
+      inode_state& operator= (const inode_state&) = delete;
       inode_state();  // ctor
       ~inode_state(); // dtor
       const string& prompt() const;  // getter
-      void prompt (const string& str) { this->prompt_ = str; }   // setter
+      void prompt (const string& str) { this->prompt_ = str; }
 
       inode_ptr& get_cwd() { return cwd; }
       void set_cwd(inode_ptr& new_cwd) { this->cwd = new_cwd; }
@@ -104,7 +104,7 @@ class base_file {
       virtual void remove (const string& filename);
       virtual inode_ptr mkdir (const string& dirname);
       virtual inode_ptr mkfile (const string& filename);
-      // Creates a base-case, that throws error if subclass doesn't implement
+      // Base Cases
       virtual map<string,inode_ptr>& get_dirents() {
          throw file_error ("is a " + error_file_type()); };
       virtual string& get_path() { 
@@ -147,7 +147,8 @@ class plain_file: public base_file {
       // These are the only 2 things you can do to a plain_file
       virtual const wordvec& readfile() const override;         
       virtual void writefile (const wordvec& newdata) override;
-      virtual void set_path(const string& filepath) override { this->path = filepath; };
+      virtual void set_path(const string& filepath) override { 
+         this->path = filepath; };
       virtual string dir_tail() const override { return ""; };
       virtual string& get_path() override { return path; };
 };
@@ -188,10 +189,12 @@ class directory: public base_file { // Just a map
       virtual map<string,inode_ptr>& get_dirents() override {
          return dirents; };
       virtual string& get_path() override { return path; };
-      virtual void set_path(const string& filepath) override { this->path = filepath; };
+      virtual void set_path(const string& filepath) override { 
+         this->path = filepath; };
       virtual void print_dirents() const override;
       virtual string dir_tail() const override { return "/"; };
-      virtual inode_ptr& recur_get_dir(wordvec& files, size_t counter) override;
+      virtual inode_ptr& recur_get_dir(
+         wordvec& files, size_t counter) override;
       virtual void recur_lsr() override;
       virtual void rmr(string&) override;
       virtual void recur_rmr() override;

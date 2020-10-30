@@ -29,8 +29,10 @@ ostream& operator<< (ostream& out, file_type type) {
 inode_state::inode_state() {
    root = make_shared<inode>(file_type::DIRECTORY_TYPE);
    cwd = root;
-   root->contents->get_dirents().insert(pair<string, inode_ptr>(".",root));
-   root->contents->get_dirents().insert(pair<string, inode_ptr>("..",root));
+   root->contents->get_dirents().insert(
+      pair<string, inode_ptr>(".",root));
+   root->contents->get_dirents().insert(
+      pair<string, inode_ptr>("..",root));
    root->contents->set_path("/");
    DEBUGF ('i', "root = " << root << ", cwd = " << cwd
       << ", prompt = \"" << prompt() << "\"");
@@ -123,7 +125,8 @@ void directory::remove (const string& filename) {
    DEBUGF ('i', filename);
    if (this->dirents.find(filename) != this->dirents.end()) {
       try {
-         auto new_dirents = this->dirents[filename]->get_contents()->get_dirents();
+         auto new_dirents = 
+            this->dirents[filename]->get_contents()->get_dirents();
          if (new_dirents.size() < 3) {
             this->dirents[filename]->get_contents() = nullptr;
             this->dirents.erase(filename);
@@ -170,13 +173,15 @@ void directory::print_dirents() const {
    auto _path = this->path;
    if (_path.length() <  2) cout << "/: " << endl;
    else cout << path.substr(0, _path.size()-1) << ":" << endl; 
-
    map<string, inode_ptr>::const_iterator it = this->dirents.begin();
    while (it != this->dirents.end())
    {
       cout << setw(6) << it->second->get_inode_nr() << "  ";
       cout << setw(6) << it->second->get_contents()->size() << "  ";
-      cout << it->first << it->second->get_contents()->dir_tail() << endl;
+      cout 
+         << it->first 
+         << it->second->get_contents()->dir_tail() 
+         << endl;
       it++;
    }
 }
@@ -185,7 +190,9 @@ void directory::print_dirents() const {
 // get_inode_ptr_from_path: 
 //    returns the second-to-last file in given param "path"
 //
-inode_ptr& inode_state::get_inode_ptr_from_path(string path, string& tail) {
+inode_ptr& inode_state::get_inode_ptr_from_path(
+   string path, string& tail)
+{
    string front = "";
    if (path.size() > 0 && path.at(0) == '/') front = "/";
    auto files = split(path, "/");
@@ -193,17 +200,20 @@ inode_ptr& inode_state::get_inode_ptr_from_path(string path, string& tail) {
    tail = files.back();
    size_t counter = 0;
    if (front == "/" || tail == "/") { 
-      return this->get_root()->get_contents()->recur_get_dir(files, counter); 
+      return this->get_root()->get_contents()->recur_get_dir(
+         files, counter); 
       }
    else { 
-      return this->get_cwd()->get_contents()->recur_get_dir(files, counter); }
+      return this->get_cwd()->get_contents()->recur_get_dir(
+         files, counter); }
 }
 
 inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
    try
    {
       if (counter < files.size() - 1) { 
-         if (this->get_dirents().find(files.at(counter)) == this->get_dirents().end()) { 
+         if (this->get_dirents().find(files.at(counter)) 
+            == this->get_dirents().end()) { 
             throw file_error("Going to catch"); };
          return this->get_dirents()[files.at(counter)]
             ->get_contents()->recur_get_dir(files, counter + 1);
@@ -237,8 +247,10 @@ void directory::rmr(string& filename) {
       && filename != ".." && filename != "/") { 
          throw file_error("Null filename: Going to catch"); };
       this->dirents[filename]->get_contents()->recur_rmr();
-      this->dirents[filename]->get_contents()->get_dirents().erase(".");
-      this->dirents[filename]->get_contents()->get_dirents().erase("..");
+      this->dirents[filename]->get_contents()
+         ->get_dirents().erase(".");
+      this->dirents[filename]->get_contents()
+         ->get_dirents().erase("..");
       this->dirents[filename]->get_contents() = nullptr;
       this->dirents[filename] = nullptr;
       this->dirents.erase(filename);
