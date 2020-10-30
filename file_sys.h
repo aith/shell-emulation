@@ -104,7 +104,6 @@ class base_file {
       virtual void remove (const string& filename);
       virtual inode_ptr mkdir (const string& dirname);
       virtual inode_ptr mkfile (const string& filename);
-
       // Creates a base-case, that throws error if subclass doesn't implement
       virtual map<string,inode_ptr>& get_dirents() {
          throw file_error ("is a " + error_file_type()); };
@@ -186,8 +185,6 @@ class directory: public base_file { // Just a map
       virtual void remove (const string& filename) override;
       virtual inode_ptr mkdir (const string& dirname) override;
       virtual inode_ptr mkfile (const string& filename) override;
-      // map.insert(pair) // make a setter func with this code
-      // TODO: Does this return the reference? How?
       virtual map<string,inode_ptr>& get_dirents() override {
          return dirents; };
       virtual string& get_path() override { return path; };

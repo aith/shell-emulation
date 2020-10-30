@@ -112,61 +112,67 @@ void fn_exit (inode_state& state, const wordvec& words){
 
 void fn_ls (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
-   // auto err = "Please specify directory name. No plain files.";
-   auto dir = state.get_cwd();
-   string dirname = "";
-   try {
-      if (words.size() < 2) { 
-         state.get_cwd()->get_contents()->print_dirents(); return; }
-      dir = state.get_inode_ptr_from_path(words.at(1), dirname);
-      auto dirents = dir->get_contents()->get_dirents();
-      if (dirname == "/") { state.get_root()->get_contents()->print_dirents(); 
-         return; }
-      if (dirents.find(dirname) == dirents.end()) {
-         throw file_error("Going to catch"); };
-      auto toLs = dirents[dirname];
-      toLs->get_contents()->get_dirents(); // Verify its a dir
-      toLs->get_contents()->print_dirents();
-   }
-   catch(std::exception const& e) {
-      if (dir->get_contents()->get_dirents().find(dirname) !=
-      dir->get_contents()->get_dirents().end() ) {
-         cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_inode_nr();
-         cout << setw(8) << dir->get_contents()->get_dirents()[dirname]->get_contents()->size() << "  ";
-         cout << dirname << endl; return; 
+   if (words.size() < 2) { 
+      state.get_cwd()->get_contents()->print_dirents(); return; }
+   for (size_t path_num = 1; path_num < words.size(); ++path_num){
+      // auto err = "Please specify directory name. No plain files.";
+      auto dir = state.get_cwd();
+      string dirname = "";
+      try {
+         dir = state.get_inode_ptr_from_path(words.at(path_num), dirname);
+         auto dirents = dir->get_contents()->get_dirents();
+         if (dirname == "/") { state.get_root()->get_contents()->print_dirents(); 
+            continue; }
+         if (dirents.find(dirname) == dirents.end()) {
+            throw file_error("Going to catch"); };
+         auto toLs = dirents[dirname];
+         toLs->get_contents()->get_dirents(); // Verify its a dir
+         toLs->get_contents()->print_dirents();
       }
-      else cout << "File does not exist." << endl;
+      catch(std::exception const& e) {
+         if (dir->get_contents()->get_dirents().find(dirname) !=
+         dir->get_contents()->get_dirents().end() ) {
+            cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_inode_nr();
+            cout << setw(8) << dir->get_contents()->get_dirents()[dirname]->get_contents()->size() << "  ";
+            cout << dirname << endl; continue; 
+         }
+         else cout << "File does not exist." << endl;
+      }
    }
 }
 
 void fn_lsr (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
-   auto err = "Please specify directory name. No plain files.";
-   auto dirToLsr = state.get_root();
-   auto dir = state.get_cwd();
-   if (words.size() > 1) {
-      string dirname = "";
-      try {
-         dir = state.get_inode_ptr_from_path(words.at(1), dirname);
-         auto dirents = dir->get_contents()->get_dirents();
-         if (dirname == "/") { dirname = "."; }
-         if (dirents.find(dirname) == dirents.end()) {
-            throw file_error("Going to catch"); };
-         dirToLsr = dirents[dirname];
-         dirToLsr->get_contents()->recur_lsr();
+   if (words.size() < 2) { 
+      state.get_cwd()->get_contents()->print_dirents(); return; }
+   for (size_t path_num = 1; path_num < words.size(); ++path_num){
+      auto err = "Please specify directory name. No plain files.";
+      auto dirToLsr = state.get_root();
+      auto dir = state.get_cwd();
+      if (words.size() > 1) {
+         string dirname = "";
+         try {
+            dir = state.get_inode_ptr_from_path(words.at(path_num), dirname);
+            auto dirents = dir->get_contents()->get_dirents();
+            if (dirname == "/") { dirname = "."; }
+            if (dirents.find(dirname) == dirents.end()) {
+               throw file_error("Going to catch"); };
+            dirToLsr = dirents[dirname];
+            dirToLsr->get_contents()->recur_lsr();
+         }
+         catch(std::exception const& e) {
+         if (dir->get_contents()->get_dirents().find(dirname) !=
+         dir->get_contents()->get_dirents().end() ) {
+            cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_inode_nr() << "  ";
+            cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_contents()->size() << "  ";
+            cout << dirname << endl; continue; 
+         }
+         else 
+            { cout << err << endl; continue; }
+         }
       }
-      catch(std::exception const& e) {
-      if (dir->get_contents()->get_dirents().find(dirname) !=
-      dir->get_contents()->get_dirents().end() ) {
-         cout << setw(6) << dir->get_contents()->get_dirents()[dirname]->get_inode_nr();
-         cout << setw(8) << dir->get_contents()->get_dirents()[dirname]->get_contents()->size() << "  ";
-         cout << dirname << endl; return; 
-      }
-      else 
-         { cout << err << endl; return; }
-      }
+      else dirToLsr->get_contents()->recur_lsr();
    }
-   else dirToLsr->get_contents()->recur_lsr();
 }
 
 void fn_make (inode_state& state, const wordvec& words){

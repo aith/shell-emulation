@@ -172,8 +172,8 @@ void directory::print_dirents() const {
    map<string, inode_ptr>::const_iterator it = this->dirents.begin();
    while (it != this->dirents.end())
    {
-      cout << setw(6) << it->second->get_inode_nr();
-      cout << setw(8) << it->second->get_contents()->size() << "  ";
+      cout << setw(6) << it->second->get_inode_nr() << "  ";
+      cout << setw(6) << it->second->get_contents()->size() << "  ";
       cout << it->first << it->second->get_contents()->dir_tail() << endl;
       it++;
    }
