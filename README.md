@@ -1,6 +1,5 @@
-WIP Shell emulation in terminal
 ## Shell Emulation in Shell
-### To run
+### Usage
 ```
 make
 yshell
@@ -47,3 +46,4 @@ rmr pathname
      A recursive removal is done, using a depth-first postorder
      traversal.
 ```
+#### Assignment given by Wesley Mackey at UCSC, Advanced Programming
