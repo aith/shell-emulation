@@ -47,21 +47,23 @@ void fn_cat (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
    string filename = "";
    string err = "No such file or directory";
-   if (words.size() < 2) { cout << err << endl; return; }
-   err = "cat: " + words.at(1) + ": " + err;
-   try { 
-      auto dir = state.get_inode_ptr_from_path(words.at(1), filename);
-      // find first
-      auto dirents = dir->get_contents()->get_dirents();
-      if (dirents.find(filename) == dirents.end()) {
-         throw file_error("Going to catch"); };
-      auto toCat = dir->get_contents()->get_dirents()[filename];
-      for ( auto i : toCat->get_contents()->readfile()) {
-         cout << i << " "; }
-      cout << endl;
+   for (size_t file_num = 1; file_num < words.size(); ++file_num){
+      if (words.size() < 2) { cout << err << endl; continue; }
+      err = "cat: " + words.at(1) + ": " + err;
+      try { 
+         auto dir = state.get_inode_ptr_from_path(words.at(file_num), filename);
+         // find first
+         auto dirents = dir->get_contents()->get_dirents();
+         if (dirents.find(filename) == dirents.end()) {
+            throw file_error("Going to catch"); };
+         auto toCat = dir->get_contents()->get_dirents()[filename];
+         for ( auto i : toCat->get_contents()->readfile()) {
+            cout << i << " "; }
+         cout << endl;
+      }
+      catch(std::exception const& e) {
+         cout << err << endl; }
    }
-   catch(std::exception const& e) {
-      cout << err << endl; return; }
 }
 
 void fn_cd (inode_state& state, const wordvec& words){
