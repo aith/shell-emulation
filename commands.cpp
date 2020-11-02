@@ -218,11 +218,16 @@ void fn_make (inode_state& state, const wordvec& words){
 void fn_mkdir (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
    string back_name = "";
+   if (words.size() < 2) { 
+      cout << "Enter a dir name." << endl; 
+      return; 
+   }
    try {
       auto toMakeIn = state.get_inode_ptr_from_path(
          words.at(1), back_name);
-      auto dirents = toMakeIn->get_contents()->get_dirents();
-      if (dirents.find(back_name) == dirents.end()) { 
+      if (toMakeIn->get_contents()->get_dirents().find(back_name) 
+       == toMakeIn->get_contents()->get_dirents().end()) 
+      { 
          toMakeIn->get_contents()->mkdir(back_name);
       }
       else { cout << "Directory already exists." << endl; };
@@ -253,12 +258,12 @@ void fn_pwd (inode_state& state, const wordvec& words){
 
 void fn_rm (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
-   auto err = "File does not exist.";
+   auto err = "Cannot delete parent directory or non-existing file.";
    string toDelete = "";
    try {
       auto toDeleteFrom = state.get_inode_ptr_from_path(
          words.at(1), toDelete);
-      if (toDelete == ".." || toDelete == "/") 
+      if (toDelete == ".." || toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
       toDeleteFrom->get_contents()->remove(toDelete); 
    }
@@ -269,12 +274,12 @@ void fn_rm (inode_state& state, const wordvec& words){
 
 void fn_rmr (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
-   auto err = "Directory path does not exist.";
+   auto err = "Cannot delete parent directory on non-existing dir.";
    string toDelete = "";
    try {
       auto toDeleteFrom = state.get_inode_ptr_from_path(
          words.at(1), toDelete);
-      if (toDelete == ".." || toDelete == "/") 
+      if (toDelete == "." || toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
       toDeleteFrom->get_contents()->rmr(toDelete); 
       }

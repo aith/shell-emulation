@@ -194,18 +194,22 @@ inode_ptr& inode_state::get_inode_ptr_from_path(
    string path, string& tail)
 {
    string front = "";
-   if (path.size() > 0 && path.at(0) == '/') front = "/";
    auto files = split(path, "/");
    if (files.size() < 1) files.push_back("/");
    tail = files.back();
    size_t counter = 0;
-   if (front == "/" || tail == "/") { 
-      return this->get_root()->get_contents()->recur_get_dir(
-         files, counter); 
-      }
-   else { 
-      return this->get_cwd()->get_contents()->recur_get_dir(
-         files, counter); }
+   try {
+      if (tail == "/") { 
+         return this->get_root()->get_contents()->recur_get_dir(
+            files, counter); 
+         }
+      else { 
+         return this->get_cwd()->get_contents()->recur_get_dir(
+            files, counter); }
+   } 
+   catch(std::exception const& e) {
+      throw file_error("Exiting");
+   }
 }
 
 inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
@@ -214,7 +218,8 @@ inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
       if (counter < files.size() - 1) { 
          if (this->get_dirents().find(files.at(counter)) 
             == this->get_dirents().end()) { 
-            throw file_error("Going to catch"); };
+            throw file_error("Did not find. Going to catch"); 
+            };
          return this->get_dirents()[files.at(counter)]
             ->get_contents()->recur_get_dir(files, counter + 1);
       }
@@ -256,6 +261,7 @@ void directory::rmr(string& filename) {
       this->dirents[filename]->get_contents() = nullptr;
       this->dirents[filename] = nullptr;
       this->dirents.erase(filename);
+      // it went to baz and checked for another while loot after deleting file
    }
    catch(std::exception const& e) {
       this->remove(filename); // Handles null
@@ -267,6 +273,7 @@ void directory::recur_rmr() {
    while (it != this->dirents.end()) {
       try { 
          if ( it->first != "." && it->first != "..")  {
+            if (it->second == nullptr) break;
             this->dirents[it->first]->get_contents()->recur_rmr();
             this->dirents[it->first]->get_contents() = nullptr;
          }
