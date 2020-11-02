@@ -255,12 +255,6 @@ void fn_rm (inode_state& state, const wordvec& words){
          words.at(1), toDelete);
       if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
-      if (state.get_cwd() == 
-         toDeleteFrom->get_contents()->get_dirents()[toDelete] ) 
-      {
-         cout << "Cannot delete pwd." << endl;
-         return;
-      }
       toDeleteFrom->get_contents()->remove(toDelete); 
    }
    catch(std::exception const& e) {
@@ -277,12 +271,6 @@ void fn_rmr (inode_state& state, const wordvec& words){
          words.at(1), toDelete);
       if (toDelete == ".." || toDelete == "/") 
          { throw file_error("Going to catch"); }
-      if (state.get_cwd() == 
-         toDeleteFrom->get_contents()->get_dirents()[toDelete] ) 
-      {
-         cout << "Cannot delete pwd." << endl;
-         return;
-      }   
       toDeleteFrom->get_contents()->rmr(toDelete); 
       }
    catch(std::exception const& e) {

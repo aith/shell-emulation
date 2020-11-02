@@ -74,6 +74,8 @@ int main (int argc, char** argv) {
             // If there is a problem discovered in any function, an
             // exn is thrown and printed here.
             complain() << error.what() << endl;
+         }catch (file_error& error) {
+            complain() << error.what() << endl;
          }
       }
    } catch (ysh_exit&) {
