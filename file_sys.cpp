@@ -261,7 +261,6 @@ void directory::rmr(string& filename) {
       this->dirents[filename]->get_contents() = nullptr;
       this->dirents[filename] = nullptr;
       this->dirents.erase(filename);
-      // it went to baz and checked for another while loot after deleting file
    }
    catch(std::exception const& e) {
       this->remove(filename); // Handles null
@@ -279,7 +278,7 @@ void directory::recur_rmr() {
          }
       }
       catch(std::exception const& e) {
-         this->remove(it->first);
+         this->dirents[it->first]->get_contents() = nullptr;
       }
       it++;
    }

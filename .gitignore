@@ -1,0 +1,11 @@
+*.o
+*.log
+README
+mk.build
+yshell
+valgrind-out.txt
+things_i_learned.txt
+Makefile.dep
+foo
+RCS
+HEADER.html

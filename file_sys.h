@@ -201,5 +201,3 @@ class directory: public base_file { // Just a map
 };
 
 #endif
-
-

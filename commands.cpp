@@ -291,5 +291,3 @@ void fn_rmr (inode_state& state, const wordvec& words){
 void fn_ignore (inode_state& state, const wordvec& words){
    return;
 }
-   
-
