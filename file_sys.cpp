@@ -230,12 +230,14 @@ inode_ptr& directory::recur_get_dir(wordvec& files, size_t counter) {
 void directory::recur_lsr() {
 
    map<string, inode_ptr>::const_iterator it = this->dirents.begin();
-   it++; // Skips . and ..
-   it++; 
    this->print_dirents();
    while (it != this->dirents.end())
    {
-      try { it->second->get_contents()->recur_lsr(); }
+      try { 
+         if ( it->first != "." && it->first != "..")  {
+            it->second->get_contents()->recur_lsr(); 
+            }
+         }
       catch(std::exception const& e) {}
       it++;
    }
@@ -262,12 +264,12 @@ void directory::rmr(string& filename) {
 
 void directory::recur_rmr() {
    map<string, inode_ptr>::iterator it = this->dirents.begin();
-   it++;
-   it++;
    while (it != this->dirents.end()) {
       try { 
-         this->dirents[it->first]->get_contents()->recur_rmr();
-         this->dirents[it->first]->get_contents() = nullptr;
+         if ( it->first != "." && it->first != "..")  {
+            this->dirents[it->first]->get_contents()->recur_rmr();
+            this->dirents[it->first]->get_contents() = nullptr;
+         }
       }
       catch(std::exception const& e) {
          this->remove(it->first);

@@ -152,14 +152,16 @@ void fn_ls (inode_state& state, const wordvec& words){
 void fn_lsr (inode_state& state, const wordvec& words){
    DEBUGF ('c', state); DEBUGF ('c', words);
    if (words.size() < 2) { 
-      state.get_cwd()->get_contents()->print_dirents(); return; }
+      state.get_cwd()->get_contents()->recur_lsr(); 
+      return; 
+      }
    for (size_t path_num = 1; path_num < words.size(); ++path_num){
       auto err = "Please specify directory name. No plain files.";
       auto dirToLsr = state.get_root();
       auto dir = state.get_cwd();
       if (words.size() > 1) {
          string dirname = "";
-         try {
+         try {  // Try to get dirents
             dir = state.get_inode_ptr_from_path(
                words.at(path_num), dirname);
             auto dirents = dir->get_contents()->get_dirents();
@@ -176,13 +178,16 @@ void fn_lsr (inode_state& state, const wordvec& words){
                ->get_dirents()[dirname]->get_inode_nr() << "  ";
             cout << setw(6) << dir->get_contents()
                ->get_dirents()[dirname]->get_contents()->size() << "  ";
-            cout << dirname << endl; continue; 
+            cout << dirname << endl; 
+            continue; 
          }
          else 
             { cout << err << endl; continue; }
          }
       }
-      else dirToLsr->get_contents()->recur_lsr();
+      else {
+         dirToLsr->get_contents()->recur_lsr();
+         }
    }
 }
 
